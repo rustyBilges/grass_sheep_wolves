@@ -5,7 +5,7 @@ class Individual():
 	
     def __init__(self, species, i, j, ID):
         self.species = species
-        self.energy  = 10          # how to assgin energies?
+        #self.energy  = rnd.randint(0,IND_MAX_ENERGY) # SPECIES SPECIFIC   #  10          # how to assgin energies?
         self.i = i
         self.j = j
         self.ID = ID
@@ -62,7 +62,11 @@ class Grass(Individual):
         
 class Sheep(Individual):
 
-    def __init__(self, i, j, ID):
+    def __init__(self, i, j, ID, energy=None):
+        if energy==None:
+            self.energy = rnd.randint(0,2*SHEEP_GAIN_FROM_FOOD)
+        else:    
+            self.energy = energy
         Individual.__init__(self, "sheep", i, j, ID)
         
     def move(self, landscape):
@@ -91,7 +95,7 @@ class Sheep(Individual):
         else:
             return False
         
-    def spawn(self,landscape):
+    def spawn(self,landscape, newEnergy):
         # find neighbouring sheep
         neighbour_list = []
         for n in range(self.neighbours.N):
@@ -100,21 +104,28 @@ class Sheep(Individual):
                 # there be a sheep!
                 neighbour_list.append(n)
         
+        newEnergy.append(self.energy/2)    
+        self.energy = self.energy - newEnergy[0]
+        
         return Individual.spawn(self,landscape, neighbour_list)
         
 
 class Wolf(Individual):
 
-    def __init__(self, i, j, ID):
+    def __init__(self, i, j, ID, energy=None):
+        if energy==None:
+            self.energy = rnd.randint(0,2*WOLF_GAIN_FROM_FOOD)
+        else:
+            self.energy = energy    
         Individual.__init__(self, "wolf", i, j, ID)
         
     def move(self, landscape):
-        # find neighbouring sheep
+        # find neighbouring wolves
         neighbour_list = []
         for n in range(self.neighbours.N):
             coords = self.neighbours.return_ij(n, self.i, self.j)
             if (landscape.patches[coords[0]][coords[1]].wolf != None):
-                # there be a sheep!
+                # there be a wolf!
                 neighbour_list.append(n)
         
         return Individual.move(self,landscape, neighbour_list)
@@ -140,7 +151,7 @@ class Wolf(Individual):
         for n in range(self.neighbours.N):
             coords = self.neighbours.return_ij(n, self.i, self.j)
             if (landscape.patches[coords[0]][coords[1]].wolf != None):
-                # there be a sheep!
+                # there be a wolf!
                 neighbour_list.append(n)
         
         return Individual.spawn(self,landscape, neighbour_list)

@@ -98,7 +98,7 @@ class Landscape():
                 self.patches[prev_i][prev_j].sheep = None
             else:
                 starvedSheep.append(s)
-                print("Sheep starved")
+                #print("Sheep starved")
                 
         for w in self.wolves:
             if self.wolves[w].alive():
@@ -108,7 +108,7 @@ class Landscape():
                 self.patches[prev_i][prev_j].wolf = None
             else:
                 starvedWolves.append(w)
-                print("wolf starved")
+                #print("wolf starved")
 
         for s in starvedSheep:
             self.deleteSheep(s)
@@ -119,7 +119,7 @@ class Landscape():
             eat_ID = self.wolves[w].eat(self)
             if (eat_ID!=None):
                 self.deleteSheep(eat_ID)
-                print("Sheep eaten")
+                #print("Sheep eaten")
                 
         for s in self.sheep:
             eat_ij = self.sheep[s].eat(self)
@@ -139,17 +139,19 @@ class Landscape():
             if self.sheep[s].reproduce():
                 reproducingSheep.append(s)
         for s in reproducingSheep:
-            spawn_ij = self.sheep[s].spawn(self)
-            self.createSheep(spawn_ij[0], spawn_ij[1])
-            print("new sheep spawned")
+            newEnergy = []
+            spawn_ij = self.sheep[s].spawn(self, newEnergy)
+            self.createSheep(spawn_ij[0], spawn_ij[1], newEnergy[0])
+            #print("new sheep spawned")
 
         for w in self.wolves:
             if self.wolves[w].reproduce():
                 reproducingWolves.append(w)
         for w in reproducingWolves:
-            spawn_ij = self.wolves[w].spawn(self)
-            self.createWolf(spawn_ij[0], spawn_ij[1])
-            print("new wolf spawned")
+            newEnergy = []
+            spawn_ij = self.wolves[w].spawn(self, newEnergy)
+            self.createWolf(spawn_ij[0], spawn_ij[1], newEnergy[0])
+            #print("new wolf spawned")
     
     
     def deleteSheep(self, sheepID):
@@ -164,14 +166,14 @@ class Landscape():
         del self.wolves[wolfID]
         self.wolfCount -= 1  
  
-    def createSheep(self, x, y):             
-        self.sheep[self.sheepIDTracker] = Sheep(x, y, self.sheepIDTracker)
+    def createSheep(self, x, y, energy=None):             
+        self.sheep[self.sheepIDTracker] = Sheep(x, y, self.sheepIDTracker, energy)
         self.patches[x][y].sheep = self.sheep[self.sheepIDTracker]
         self.sheepCount += 1
         self.sheepIDTracker += 1
         
-    def createWolf(self, x, y):
-        self.wolves[self.wolfIDTracker] = Wolf(x, y, self.wolfIDTracker)                
+    def createWolf(self, x, y, energy=None):
+        self.wolves[self.wolfIDTracker] = Wolf(x, y, self.wolfIDTracker, energy)                
         self.patches[x][y].wolf = self.wolves[self.wolfIDTracker]
         self.wolfCount += 1
         self.wolfIDTracker += 1
