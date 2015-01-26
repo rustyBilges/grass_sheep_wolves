@@ -1,4 +1,4 @@
-from species import Individual, Grass
+from species import Individual, Grass, Sheep
 import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -42,7 +42,8 @@ class Landscape():
             print(x_coord)
             print(y_coord)
             if self.patches[x_coord][y_coord].sheep==None:
-                self.sheep.append(Individual("sheep", x_coord, y_coord))
+                #self.sheep.append(Individual("sheep", x_coord, y_coord))
+                self.sheep.append(Sheep(x_coord, y_coord))
                 self.patches[x_coord][y_coord].sheep = self.sheep[self.sheepCount]
                 self.sheepCount += 1
             x_coord = rnd.randint(0,COLUMNS-1)
@@ -114,6 +115,7 @@ class Cell():
         self.habitat = 1   # 1 -> pristine habitat
 
     def update(self, landscape):
+    # DEPRICATED
         if (self.sheep!=None):
             new_ij = self.sheep.move(landscape)
             #print(landscape)
@@ -178,7 +180,7 @@ if __name__ == '__main__':
 ##    plt.draw()
 ##    time.sleep(1)
 
-    T = 10
+    T = 100
     rest = 0.3
     for t in range(T):
         L.update()

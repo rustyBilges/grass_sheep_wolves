@@ -10,17 +10,8 @@ class Individual():
         self.j = j
         self.neighbours = Neighbourhood()
      
-    def move(self, landscape):
-        #print(landscape.patches[0][0].grass.state)   
-        
-        # find neighbours of same species
-        neighbour_list = []
-        for n in range(self.neighbours.N):
-            coords = self.neighbours.return_ij(n, self.i, self.j)
-            if (landscape.patches[coords[0]][coords[1]].sheep != None):
-                # there be a sheep!
-                neighbour_list.append(n)
-        
+    def move(self, landscape, neighbour_list):
+        # neighbour_list: list of which neighbouring cells contain the same species
         r = rnd.randint(0,7)
         while (r in neighbour_list):
             r = rnd.randint(0,7)
@@ -29,9 +20,6 @@ class Individual():
         self.i,self.j = self.neighbours.return_ij(r, prev_i, prev_j)
         return (self.i,self.j)
     
-##        landscape.patches[self.i][self.j] = self
-##        landscape.patches[prev_i][prev_j] = None
-
 class Grass(Individual):
     
     def __init__(self, i, j):
@@ -40,8 +28,22 @@ class Grass(Individual):
         #self.i = i
         #self.j = j
         
-#class Sheep()
+class Sheep(Individual):
+
+    def __init__(self, i, j):
+        Individual.__init__(self, "sheep", i, j)
         
+    def move(self, landscape):
+        # find neighbouring sheep
+        neighbour_list = []
+        for n in range(self.neighbours.N):
+            coords = self.neighbours.return_ij(n, self.i, self.j)
+            if (landscape.patches[coords[0]][coords[1]].sheep != None):
+                # there be a sheep!
+                neighbour_list.append(n)
+        
+        return Individual.move(self,landscape, neighbour_list)
+    
 class Neighbourhood():
     def __init__(self):
         self.name = "8_nearest_neighbours"
