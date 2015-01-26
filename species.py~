@@ -1,13 +1,14 @@
-from configure import ROWS, COLUMNS
+from configure import ROWS, COLUMNS, SHEEP_GAIN_FROM_FOOD, WOLF_GAIN_FROM_FOOD
 import random as rnd
 
 class Individual():
 	
-    def __init__(self, species, i, j):
+    def __init__(self, species, i, j, ID):
         self.species = species
         self.energy  = 0          # how to assgin energies?
         self.i = i
         self.j = j
+        self.ID = ID
         self.neighbours = Neighbourhood()
      
     def move(self, landscape, neighbour_list):
@@ -23,15 +24,15 @@ class Individual():
 class Grass(Individual):
     
     def __init__(self, i, j):
-        Individual.__init__(self, "grass", i, j)
+        Individual.__init__(self, "grass", i, j, 0)
         self.state = True             # True -> alive
         #self.i = i
         #self.j = j
         
 class Sheep(Individual):
 
-    def __init__(self, i, j):
-        Individual.__init__(self, "sheep", i, j)
+    def __init__(self, i, j, ID):
+        Individual.__init__(self, "sheep", i, j, ID)
         
     def move(self, landscape):
         # find neighbouring sheep
@@ -46,8 +47,8 @@ class Sheep(Individual):
 
 class Wolf(Individual):
 
-    def __init__(self, i, j):
-        Individual.__init__(self, "wolf", i, j)
+    def __init__(self, i, j, ID):
+        Individual.__init__(self, "wolf", i, j, ID)
         
     def move(self, landscape):
         # find neighbouring sheep
@@ -64,10 +65,10 @@ class Wolf(Individual):
         if (landscape.patches[self.i][self.j].sheep!=None):
             # I have food!
             self.energy += WOLF_GAIN_FROM_FOOD
-            eat_ij = (self.i,self.j)
+            eat_ID = self.ID
         else:
-            eat_ij = None
-        return eat_ij
+            eat_ID = None
+        return eat_ID
 
 class Neighbourhood():
     def __init__(self):
