@@ -11,7 +11,7 @@ from configure import ROWS, COLUMNS, INIT_NUMBER_SHEEP, INIT_NUMBER_WOLVES, INIT
 
 class Landscape():
 	
-    def __init__(self, animate=False, T=0, rest=0):
+    def __init__(self, timeSeries=False, animate=False, T=0, rest=0):
         
         self.sheepIDTracker = 0
         self.wolfIDTracker = 0   # such that every individual born can be given a unique ID
@@ -26,16 +26,20 @@ class Landscape():
         self._initialise_patches()
         self.patches[0][0].grass.state = False  #JUST FOR TEMPORARY
         
+        if timseries==True:
+            self.timeSeries = np.zeros((3, T+1))
+        else:         
+            self.timeSeries=None
+        
         if animate==True:
             self.animate = True
             self.rest = rest
-            self.timeSeries = np.zeros((3, T+1))    
             self.grassDist = np.zeros((ROWS,COLUMNS))
             self.sheepDist = np.zeros((ROWS,COLUMNS))
             self.wolfDist = np.zeros((ROWS,COLUMNS))    
     
             self.fig, (self.ax1, self.ax2, self.ax3) = plt.subplots(1,3)
-            self.species_distributions(self.grassDist, self.sheepDist, self.wolfDist, self.timeSeries, 0)
+            self.species_distributions(self.grassDist, self.sheepDist, self.wolfDist)
     
             self.p1 = self.ax1.imshow(self.grassDist, cmap='Greens', interpolation=None)    
             self.p2 = self.ax2.imshow(self.sheepDist, cmap='Blues', interpolation=None)    
@@ -83,7 +87,7 @@ class Landscape():
             y_coord = rnd.randint(0,ROWS-1)        
                     
 
-    def species_distributions(self, grassDist, sheepDist, wolfDist, timeSeries, ti):
+    def species_distributions(self, grassDist, sheepDist, wolfDist):
         
         for i in range(ROWS):
             for j in range(COLUMNS):
@@ -94,10 +98,11 @@ class Landscape():
                 if self.patches[i][j].wolf!=None:
                     wolfDist[i,j]=1
                     
+    def timeSeries_append(self, ti):
         timeSeries[0,ti] = self.grassCount
         timeSeries[1,ti] = self.sheepCount
         timeSeries[2,ti] = self.wolfCount
-                    
+                            
     def __str__(self):
         return "This is a landscape of %d by %d cells.\nIt contains %d sheep, and %d wolves" % (ROWS, COLUMNS, self.sheepCount, self.wolfCount)
 		
@@ -172,7 +177,9 @@ class Landscape():
             #print("new wolf spawned")
             
         if self.animate:
-            self.updatePlot(ti)    
+            self.updatePlot()
+        if self.timeSeries!=None:
+            self.timeSeries_append(ti)
     
     
     def deleteSheep(self, sheepID):
@@ -199,11 +206,11 @@ class Landscape():
         self.wolfCount += 1
         self.wolfIDTracker += 1
 
-    def updatePlot(self, t):
+    def updatePlot(self):
         self.grassDist = np.zeros((ROWS,COLUMNS))
         self.sheepDist = np.zeros((ROWS,COLUMNS))
         self.wolfDist = np.zeros((ROWS,COLUMNS))    
-        self.species_distributions(self.grassDist, self.sheepDist, self.wolfDist, self.timeSeries, t+1)
+        self.species_distributions(self.grassDist, self.sheepDist, self.wolfDist)
         
         self.p1.set_data(self.grassDist)        
         self.p2.set_data(self.sheepDist)
@@ -222,7 +229,7 @@ class Cell():
   
 if __name__ == '__main__':
 
-    T = 1000
+    T = 10
     rest = 0.0
 ##    timeSeries = np.zeros((3, T+1))    
 ##    
@@ -230,7 +237,7 @@ if __name__ == '__main__':
 ##    sheepDist = np.zeros((ROWS,COLUMNS))
 ##    wolfDist = np.zeros((ROWS,COLUMNS))    
 ##    
-    L = Landscape(True, T, rest)
+    L = Landscape(True, True, T, rest)
     print(L)
 ##    
 ##    fig, (ax1, ax2, ax3) = plt.subplots(1,3)
@@ -259,7 +266,7 @@ if __name__ == '__main__':
     
     fig2 = plt.figure()
     ax1fig2 = fig2.add_subplot(111)
-    ax1fig2.plot(range(T+1), timeSeries[0,:]/4, 'g')
-    ax1fig2.plot(range(T+1), timeSeries[1,:], 'b')
-    ax1fig2.plot(range(T+1), timeSeries[2,:], 'r')
+    ax1fig2.plot(range(T+1), L.timeSeries[0,:]/4, 'g')
+    ax1fig2.plot(range(T+1), L.timeSeries[1,:], 'b')
+    ax1fig2.plot(range(T+1), L.timeSeries[2,:], 'r')
     plt.show(fig2)
