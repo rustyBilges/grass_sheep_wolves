@@ -11,7 +11,7 @@ from configure import ROWS, COLUMNS, INIT_NUMBER_SHEEP, INIT_NUMBER_WOLVES, INIT
 
 class Landscape():
 	
-    def __init__(self):
+    def __init__(self, animate=False, T=0, rest=0):
         
         self.sheepIDTracker = 0
         self.wolfIDTracker = 0   # such that every individual born can be given a unique ID
@@ -25,6 +25,24 @@ class Landscape():
         self._create_patches()
         self._initialise_patches()
         self.patches[0][0].grass.state = False  #JUST FOR TEMPORARY
+        
+        if animate==True:
+            self.animate = True
+            self.rest = rest
+            self.timeSeries = np.zeros((3, T+1))    
+            self.grassDist = np.zeros((ROWS,COLUMNS))
+            self.sheepDist = np.zeros((ROWS,COLUMNS))
+            self.wolfDist = np.zeros((ROWS,COLUMNS))    
+    
+            self.fig, (self.ax1, self.ax2, self.ax3) = plt.subplots(1,3)
+            self.species_distributions(self.grassDist, self.sheepDist, self.wolfDist, self.timeSeries, 0)
+    
+            self.p1 = self.ax1.imshow(self.grassDist, cmap='Greens', interpolation=None)    
+            self.p2 = self.ax2.imshow(self.sheepDist, cmap='Blues', interpolation=None)    
+            self.p3 = self.ax3.imshow(self.wolfDist, cmap='Reds', interpolation=None)    
+            plt.draw()
+            time.sleep(1)
+
 
     def _create_patches(self):
         for i in range(ROWS):
@@ -85,7 +103,7 @@ class Landscape():
 		
 
 
-    def update(self):
+    def update(self, ti):
         
         starvedSheep = []
         starvedWolves = []
@@ -152,6 +170,9 @@ class Landscape():
             spawn_ij = self.wolves[w].spawn(self, newEnergy)
             self.createWolf(spawn_ij[0], spawn_ij[1], newEnergy[0])
             #print("new wolf spawned")
+            
+        if self.animate:
+            self.updatePlot(ti)    
     
     
     def deleteSheep(self, sheepID):
@@ -178,6 +199,18 @@ class Landscape():
         self.wolfCount += 1
         self.wolfIDTracker += 1
 
+    def updatePlot(self, t):
+        self.grassDist = np.zeros((ROWS,COLUMNS))
+        self.sheepDist = np.zeros((ROWS,COLUMNS))
+        self.wolfDist = np.zeros((ROWS,COLUMNS))    
+        self.species_distributions(self.grassDist, self.sheepDist, self.wolfDist, self.timeSeries, t+1)
+        
+        self.p1.set_data(self.grassDist)        
+        self.p2.set_data(self.sheepDist)
+        self.p3.set_data(self.wolfDist)        
+        plt.draw()
+        time.sleep(self.rest)
+        
 class Cell():
     
     def __init__(self):
@@ -191,38 +224,37 @@ if __name__ == '__main__':
 
     T = 1000
     rest = 0.0
-    timeSeries = np.zeros((3, T+1))    
-    
-    grassDist = np.zeros((ROWS,COLUMNS))
-    sheepDist = np.zeros((ROWS,COLUMNS))
-    wolfDist = np.zeros((ROWS,COLUMNS))    
-    
-    L = Landscape()
+##    timeSeries = np.zeros((3, T+1))    
+##    
+##    grassDist = np.zeros((ROWS,COLUMNS))
+##    sheepDist = np.zeros((ROWS,COLUMNS))
+##    wolfDist = np.zeros((ROWS,COLUMNS))    
+##    
+    L = Landscape(True, T, rest)
     print(L)
-    
-    fig, (ax1, ax2, ax3) = plt.subplots(1,3)
-    L.species_distributions(grassDist, sheepDist, wolfDist, timeSeries, 0)
-    
-    p1 = ax1.imshow(grassDist, cmap='Greens', interpolation=None)    
-    p2 = ax2.imshow(sheepDist, cmap='Blues', interpolation=None)    
-    p3 = ax3.imshow(wolfDist, cmap='Reds', interpolation=None)    
-    plt.draw()
-
-    time.sleep(1)
+##    
+##    fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+##    L.species_distributions(grassDist, sheepDist, wolfDist, timeSeries, 0)
+##    
+##    p1 = ax1.imshow(grassDist, cmap='Greens', interpolation=None)    
+##    p2 = ax2.imshow(sheepDist, cmap='Blues', interpolation=None)    
+##    p3 = ax3.imshow(wolfDist, cmap='Reds', interpolation=None)    
+##    plt.draw()
+##    time.sleep(1)
 
     for t in range(T):
-        L.update()
-        grassDist = np.zeros((ROWS,COLUMNS))
-        sheepDist = np.zeros((ROWS,COLUMNS))
-        wolfDist = np.zeros((ROWS,COLUMNS))    
-        L.species_distributions(grassDist, sheepDist, wolfDist, timeSeries, t+1)
-        
-        p1.set_data(grassDist)        
-        p2.set_data(sheepDist)
-        p3.set_data(wolfDist)        
-        plt.draw()
-        time.sleep(rest)
-    
+        L.update(t)
+##        grassDist = np.zeros((ROWS,COLUMNS))
+##        sheepDist = np.zeros((ROWS,COLUMNS))
+##        wolfDist = np.zeros((ROWS,COLUMNS))    
+##        L.species_distributions(grassDist, sheepDist, wolfDist, timeSeries, t+1)
+##        
+##        p1.set_data(grassDist)        
+##        p2.set_data(sheepDist)
+##        p3.set_data(wolfDist)        
+##        plt.draw()
+##        time.sleep(rest)
+##    
     print(L)
     
     fig2 = plt.figure()
