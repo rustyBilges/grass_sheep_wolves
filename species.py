@@ -40,6 +40,8 @@ class Grass(Individual):
         #self.i = i
         #self.j = j
         
+#class Sheep()
+        
 class Neighbourhood():
     def __init__(self):
         self.name = "8_nearest_neighbours"

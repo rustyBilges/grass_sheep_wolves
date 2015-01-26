@@ -2,6 +2,10 @@ from species import Individual, Grass
 import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import interactive
+interactive(True)
+
+import time
 
 from configure import ROWS, COLUMNS, INIT_NUMBER_SHEEP, INIT_NUMBER_WOLVES
 
@@ -10,6 +14,8 @@ class Landscape():
     def __init__(self):
         self.sheepCount = 0
         self.wolfCount = 0
+        self.sheep = []
+        self.wolves = []
         
         self.patches = []
         self._create_patches()
@@ -36,7 +42,8 @@ class Landscape():
             print(x_coord)
             print(y_coord)
             if self.patches[x_coord][y_coord].sheep==None:
-                self.patches[x_coord][y_coord].sheep = Individual("sheep", x_coord, y_coord)
+                self.sheep.append(Individual("sheep", x_coord, y_coord))
+                self.patches[x_coord][y_coord].sheep = self.sheep[self.sheepCount]
                 self.sheepCount += 1
             x_coord = rnd.randint(0,COLUMNS-1)
             y_coord = rnd.randint(0,ROWS-1)        
@@ -47,7 +54,8 @@ class Landscape():
             print(x_coord)
             print(y_coord)
             if self.patches[x_coord][y_coord].wolf==None:
-                self.patches[x_coord][y_coord].wolf = Individual("wolf", x_coord, y_coord)
+                self.wolves.append(Individual("wolf", x_coord, y_coord))
+                self.patches[x_coord][y_coord].wolf = self.wolves[self.wolfCount]
                 self.wolfCount += 1
             x_coord = rnd.randint(0,COLUMNS-1)
             y_coord = rnd.randint(0,ROWS-1)        
@@ -68,29 +76,33 @@ class Landscape():
 
 
     def update(self):
-        
-        sheepToMove = 0
-        moveTo = []
-        moveFrom = []
-        for i in range(ROWS):
-            for j in range(COLUMNS):
-                new_ij = self.patches[i][j].update(self)
-                if (new_ij!=None):
-                    sheepToMove += 1
-                    moveTo.append(new_ij)
-                    moveFrom.append((i,j))
-                    #self.patches[new_ij[0]][new_ij[1]].sheep = self.patches[i][j].sheep
-                    #self.patches[i][j].sheep = None
-                    
-        if (sheepToMove != self.sheepCount):
-            print("Warning:move bug!")
-        
         for s in range(self.sheepCount):
-            self.patches[moveTo[s][0]][moveTo[s][1]].sheep = self.patches[moveFrom[s][0]][moveFrom[s][1]].sheep
-            self.patches[moveFrom[s][0]][moveFrom[s][1]].sheep = None
-            #print(moveTo[s][0])
-            #print(moveFrom[s][0])
-            
+            prev_i,prev_j = (self.sheep[s].i,self.sheep[s].j)
+            new_ij = self.sheep[s].move(self)
+            self.patches[new_ij[0]][new_ij[1]].sheep = self.sheep[s]
+            self.patches[prev_i][prev_j].sheep = None
+##        sheepToMove = 0
+##        moveTo = []
+##        moveFrom = []
+##        for i in range(ROWS):
+##            for j in range(COLUMNS):
+##                new_ij = self.patches[i][j].update(self)
+##                if (new_ij!=None):
+##                    sheepToMove += 1
+##                    moveTo.append(new_ij)
+##                    moveFrom.append((i,j))
+##                    #self.patches[new_ij[0]][new_ij[1]].sheep = self.patches[i][j].sheep
+##                    #self.patches[i][j].sheep = None
+##                    
+##        if (sheepToMove != self.sheepCount):
+##            print("Warning:move bug!")
+##        
+##        for s in range(self.sheepCount):
+##            self.patches[moveTo[s][0]][moveTo[s][1]].sheep = self.patches[moveFrom[s][0]][moveFrom[s][1]].sheep
+##            self.patches[moveFrom[s][0]][moveFrom[s][1]].sheep = None
+##            #print(moveTo[s][0])
+##            #print(moveFrom[s][0])
+##            
                 
 # landscape to consist of an array of cells
 class Cell():
@@ -121,31 +133,60 @@ if __name__ == '__main__':
     #L.patches[0][1].grass = Grass(0,1)
     #L.patches[0][0].grass.state = False
     
+    fig, (ax1, ax2, ax3) = plt.subplots(1,3)
     L.species_distributions(grassDist, sheepDist, wolfDist)
-    plt.subplot(1,3,1)
-    p1 = plt.pcolor(grassDist, cmap='Greens')
-    plt.subplot(1,3,2)
-    p2 = plt.pcolor(sheepDist, cmap='Blues')
-    plt.subplot(1,3,3)
-    p3 = plt.pcolor(wolfDist, cmap='Reds')
+    #plt.subplot(1,3,1)
+    ax1.imshow(grassDist, cmap='Greens', interpolation='none')    
+    #p1 = plt.pcolor(grassDist, cmap='Greens')
+    #plt.subplot(1,3,2)
+    p2 = ax2.imshow(sheepDist, cmap='Blues', interpolation='none')    
+    #p2 = plt.pcolor(sheepDist, cmap='Blues')
+    #plt.subplot(1,3,3)
+    ax3.imshow(wolfDist, cmap='Reds', interpolation=None)    
+    #p3 = plt.pcolor(wolfDist, cmap='Reds')
     plt.draw()
-    
-    #L.update()
-    #grassDist = np.zeros((ROWS,COLUMNS))
-    #sheepDist2 = np.zeros((ROWS,COLUMNS))
-    #wolfDist = np.zeros((ROWS,COLUMNS))    
-    T = 2
+    #plt.show()
+    time.sleep(1)
+##    L.update()
+##    grassDist = np.zeros((ROWS,COLUMNS))
+##    sheepDist = np.zeros((ROWS,COLUMNS))
+##    wolfDist = np.zeros((ROWS,COLUMNS))    
+##    L.species_distributions(grassDist, sheepDist, wolfDist)
+##    
+##    #plt.subplot(1,3,1)
+##    #p1 = plt.imshow(grassDist, cmap='Greens', interpolation='none')    
+##    #p1 = plt.pcolor(grassDist, cmap='Greens')
+##    #plt.subplot(1,3,2)
+##    #p2 = plt.imshow(sheepDist, cmap='Blues', interpolation='none')    
+##    #p2 = plt.pcolor(sheepDist, cmap='Blues')
+##    #plt.subplot(1,3,3)
+##    #p3 = plt.imshow(wolfDist, cmap='Reds', interpolation=None)    
+##    #p3 = plt.pcolor(wolfDist, cmap='Reds')
+##    #plt.draw()
+##    #plt.show()
+##    p2.set_data(sheepDist)
+##    plt.draw()
+##    time.sleep(1)
+##    
+##    L.update()
+##    grassDist = np.zeros((ROWS,COLUMNS))
+##    sheepDist = np.zeros((ROWS,COLUMNS))
+##    wolfDist = np.zeros((ROWS,COLUMNS))    
+##    L.species_distributions(grassDist, sheepDist, wolfDist)
+##
+##    p2.set_data(sheepDist)
+##    plt.draw()
+##    time.sleep(1)
+
+    T = 100
+    rest = 0.3
     for t in range(T):
         L.update()
         grassDist = np.zeros((ROWS,COLUMNS))
         sheepDist = np.zeros((ROWS,COLUMNS))
         wolfDist = np.zeros((ROWS,COLUMNS))    
         L.species_distributions(grassDist, sheepDist, wolfDist)
-##        plt.subplot(1,3,1)
-##        plt.pcolor(grassDist, cmap='Greens')
-##        plt.subplot(1,3,2)
-##        plt.pcolor(sheepDist, cmap='Blues')
-##        plt.subplot(1,3,3)
-##        plt.pcolor(wolfDist, cmap='Reds')
-        p2.update(sheepDist)        
+        
+        p2.set_data(sheepDist)        
         plt.draw()
+        time.sleep(rest)

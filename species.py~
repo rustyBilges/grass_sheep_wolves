@@ -27,7 +27,8 @@ class Individual():
         prev_i = self.i
         prev_j = self.j    
         self.i,self.j = self.neighbours.return_ij(r, prev_i, prev_j)
-        
+        return (self.i,self.j)
+    
 ##        landscape.patches[self.i][self.j] = self
 ##        landscape.patches[prev_i][prev_j] = None
 
@@ -38,6 +39,8 @@ class Grass(Individual):
         self.state = True             # True -> alive
         #self.i = i
         #self.j = j
+        
+#class Sheep()
         
 class Neighbourhood():
     def __init__(self):
