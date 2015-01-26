@@ -26,7 +26,7 @@ class Landscape():
         self._initialise_patches()
         self.patches[0][0].grass.state = False  #JUST FOR TEMPORARY
         
-        if timseries==True:
+        if timeSeries==True:
             self.timeSeries = np.zeros((3, T+1))
         else:         
             self.timeSeries=None
@@ -99,9 +99,9 @@ class Landscape():
                     wolfDist[i,j]=1
                     
     def timeSeries_append(self, ti):
-        timeSeries[0,ti] = self.grassCount
-        timeSeries[1,ti] = self.sheepCount
-        timeSeries[2,ti] = self.wolfCount
+        self.timeSeries[0,ti+1] = self.grassCount
+        self.timeSeries[1,ti+1] = self.sheepCount
+        self.timeSeries[2,ti+1] = self.wolfCount
                             
     def __str__(self):
         return "This is a landscape of %d by %d cells.\nIt contains %d sheep, and %d wolves" % (ROWS, COLUMNS, self.sheepCount, self.wolfCount)
@@ -229,7 +229,7 @@ class Cell():
   
 if __name__ == '__main__':
 
-    T = 10
+    T = 1000
     rest = 0.0
 ##    timeSeries = np.zeros((3, T+1))    
 ##    
