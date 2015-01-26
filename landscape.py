@@ -7,7 +7,7 @@ interactive(True)
 
 import time
 
-from configure import ROWS, COLUMNS, INIT_NUMBER_SHEEP, INIT_NUMBER_WOLVES
+from configure import ROWS, COLUMNS, INIT_NUMBER_SHEEP, INIT_NUMBER_WOLVES, INIT_NUMBER_GRASS
 
 class Landscape():
 	
@@ -17,6 +17,7 @@ class Landscape():
         self.wolfIDTracker = 0   # such that every individual born can be given a unique ID
         self.sheepCount = 0
         self.wolfCount = 0
+        self.grassCount = 0
         self.sheep = {}
         self.wolves = {}
         
@@ -38,6 +39,14 @@ class Landscape():
         for i in range(ROWS):
             for j in range(COLUMNS):
                 self.patches[i][j].grass = Grass(i, j)
+        x_coord = rnd.randint(0,COLUMNS-1)
+        y_coord = rnd.randint(0,ROWS-1)
+        while self.grassCount < INIT_NUMBER_GRASS:
+            if self.patches[x_coord][y_coord].grass.state==False:
+                self.patches[x_coord][y_coord].grass.state=True
+                self.grassCount += 1
+            x_coord = rnd.randint(0,COLUMNS-1)
+            y_coord = rnd.randint(0,ROWS-1) 
         # create sheep
         x_coord = rnd.randint(0,COLUMNS-1)
         y_coord = rnd.randint(0,ROWS-1)
@@ -58,18 +67,16 @@ class Landscape():
 
     def species_distributions(self, grassDist, sheepDist, wolfDist, timeSeries, ti):
         
-        grassCount = 0
         for i in range(ROWS):
             for j in range(COLUMNS):
                 if self.patches[i][j].grass.state==True:
                     grassDist[i,j]=1
-                    grassCount += 1
                 if self.patches[i][j].sheep!=None:
                     sheepDist[i,j]=1
                 if self.patches[i][j].wolf!=None:
                     wolfDist[i,j]=1
                     
-        timeSeries[0,ti] = grassCount
+        timeSeries[0,ti] = self.grassCount
         timeSeries[1,ti] = self.sheepCount
         timeSeries[2,ti] = self.wolfCount
                     
@@ -118,10 +125,12 @@ class Landscape():
             eat_ij = self.sheep[s].eat(self)
             if eat_ij!=None:
                 self.patches[eat_ij[0]][eat_ij[1]].grass.eaten()
+                self.grassCount -= 1
 
         for i in range(ROWS):
             for j in range(COLUMNS):
-                self.patches[i][j].grass.grow()
+                if self.patches[i][j].grass.grow():
+                    self.grassCount += 1
         
         reproducingSheep = []
         reproducingWolves = []
@@ -178,8 +187,8 @@ class Cell():
   
 if __name__ == '__main__':
 
-    T = 100
-    rest = 0.1
+    T = 1000
+    rest = 0.0
     timeSeries = np.zeros((3, T+1))    
     
     grassDist = np.zeros((ROWS,COLUMNS))

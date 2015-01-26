@@ -1,11 +1,11 @@
-from configure import ROWS, COLUMNS, SHEEP_GAIN_FROM_FOOD, WOLF_GAIN_FROM_FOOD, GRASS_REGROWTH_TIME, P_REPRODUCE_SHEEP, P_REPRODUCE_WOLF
+from configure import ROWS, COLUMNS, SHEEP_GAIN_FROM_FOOD, WOLF_GAIN_FROM_FOOD, GRASS_REGROWTH_TIME, P_REPRODUCE_SHEEP, P_REPRODUCE_WOLF, IND_MAX_ENERGY
 import random as rnd
 
 class Individual():
 	
     def __init__(self, species, i, j, ID):
         self.species = species
-        self.energy  = 10          # how to assgin energies?
+        self.energy  = rnd.randint(0,IND_MAX_ENERGY) # SPECIES SPECIFIC   #  10          # how to assgin energies?
         self.i = i
         self.j = j
         self.ID = ID
@@ -36,7 +36,6 @@ class Individual():
         while (r in neighbour_list):
             r = rnd.randint(0,7)
             
-        #self.energy -= 1
         return self.neighbours.return_ij(r, self.i, self.j)
     
     
@@ -44,10 +43,8 @@ class Grass(Individual):
     
     def __init__(self, i, j):
         Individual.__init__(self, "grass", i, j, 0)
-        self.state = True             # True -> alive
-        self.counter = 0
-        #self.i = i
-        #self.j = j
+        self.state = False             # True -> alive
+        self.counter = rnd.randint(0,GRASS_REGROWTH_TIME-1)
         
     def eaten(self):
         self.state = False
@@ -59,6 +56,9 @@ class Grass(Individual):
             self.counter += 1
             if self.counter == GRASS_REGROWTH_TIME:
                 self.state = True
+                return True
+            else:
+                return False
         
 class Sheep(Individual):
 
