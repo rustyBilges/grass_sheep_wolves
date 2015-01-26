@@ -113,6 +113,15 @@ class Landscape():
             if (eat_ID!=None):
                 self.deleteSheep(eat_ID)
                 print("Sheep eaten")
+                
+        for s in self.sheep:
+            eat_ij = self.sheep[s].eat(self)
+            if eat_ij!=None:
+                self.patches[eat_ij[0]][eat_ij[1]].grass.eaten()
+
+        for i in range(ROWS):
+            for j in range(COLUMNS):
+                self.patches[i][j].grass.grow()
     
     def deleteSheep(self, sheepID):
         deadSheep = self.sheep[sheepID]
@@ -171,6 +180,7 @@ if __name__ == '__main__':
         wolfDist = np.zeros((ROWS,COLUMNS))    
         L.species_distributions(grassDist, sheepDist, wolfDist)
         
+        p1.set_data(grassDist)        
         p2.set_data(sheepDist)
         p3.set_data(wolfDist)        
         plt.draw()

@@ -45,8 +45,8 @@ class Grass(Individual):
     def grow(self):
         
         if self.state == False:
-            counter += 1
-            if counter == GRASS_REGROWTH_TIME:
+            self.counter += 1
+            if self.counter == GRASS_REGROWTH_TIME:
                 self.state = True
         
 class Sheep(Individual):
