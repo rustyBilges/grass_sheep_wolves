@@ -1,7 +1,7 @@
 
 # size of landscape
-ROWS = 50
-COLUMNS = 50
+ROWS = 10
+COLUMNS = 10
 
 # parameters for individuals
 INIT_NUMBER_SHEEP = 5
