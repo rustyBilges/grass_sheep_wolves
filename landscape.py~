@@ -43,11 +43,7 @@ class Landscape():
         y_coord = rnd.randint(0,ROWS-1)
         while self.sheepCount < INIT_NUMBER_SHEEP:
             if self.patches[x_coord][y_coord].sheep==None:
-                self.sheep[self.sheepIDTracker] = Sheep(x_coord, y_coord, self.sheepIDTracker)
-                #self.sheep.append(Sheep(x_coord, y_coord))
-                self.patches[x_coord][y_coord].sheep = self.sheep[self.sheepCount]
-                self.sheepCount += 1
-                self.sheepIDTracker += 1 # REFACTOR: LET SHEEP CLASS DEAL WITH THIS
+                self.createSheep(x_coord, y_coord)
             x_coord = rnd.randint(0,COLUMNS-1)
             y_coord = rnd.randint(0,ROWS-1)        
         # create wolves    
@@ -55,11 +51,7 @@ class Landscape():
         y_coord = rnd.randint(0,ROWS-1)
         while self.wolfCount < INIT_NUMBER_WOLVES:
             if self.patches[x_coord][y_coord].wolf==None:
-                self.wolves[self.wolfIDTracker] = Wolf(x_coord, y_coord, self.wolfIDTracker)                
-                #self.wolves.append(Wolf(x_coord, y_coord))
-                self.patches[x_coord][y_coord].wolf = self.wolves[self.wolfCount]
-                self.wolfCount += 1
-                self.wolfIDTracker += 1
+                self.createWolf(x_coord,y_coord)
             x_coord = rnd.randint(0,COLUMNS-1)
             y_coord = rnd.randint(0,ROWS-1)        
                     
@@ -122,6 +114,15 @@ class Landscape():
         for i in range(ROWS):
             for j in range(COLUMNS):
                 self.patches[i][j].grass.grow()
+        
+        reproducingSheep = []            
+        for s in self.sheep:
+            if self.sheep[s].reproduce():
+                reproducingSheep.append(s)
+        for s in reproducingSheep:
+            spawn_ij = self.sheep[s].spawn(self)
+            self.createSheep(spawn_ij[0], spawn_ij[1])
+            print("new sheep spawned")
     
     def deleteSheep(self, sheepID):
         deadSheep = self.sheep[sheepID]
@@ -134,8 +135,19 @@ class Landscape():
         self.patches[deadWolf.i][deadWolf.j].wolf = None
         del self.wolves[wolfID]
         self.wolfCount -= 1  
-              
-# landscape to consist of an array of cells
+ 
+    def createSheep(self, x, y):             
+        self.sheep[self.sheepIDTracker] = Sheep(x, y, self.sheepIDTracker)
+        self.patches[x][y].sheep = self.sheep[self.sheepIDTracker]
+        self.sheepCount += 1
+        self.sheepIDTracker += 1
+        
+    def createWolf(self, x, y):
+        self.wolves[self.wolfIDTracker] = Wolf(x, y, self.wolfIDTracker)                
+        self.patches[x][y].wolf = self.wolves[self.wolfIDTracker]
+        self.wolfCount += 1
+        self.wolfIDTracker += 1
+
 class Cell():
     
     def __init__(self):
@@ -171,7 +183,7 @@ if __name__ == '__main__':
 
     time.sleep(1)
 
-    T = 60
+    T = 20
     rest = 0.1
     for t in range(T):
         L.update()

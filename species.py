@@ -1,4 +1,4 @@
-from configure import ROWS, COLUMNS, SHEEP_GAIN_FROM_FOOD, WOLF_GAIN_FROM_FOOD, GRASS_REGROWTH_TIME
+from configure import ROWS, COLUMNS, SHEEP_GAIN_FROM_FOOD, WOLF_GAIN_FROM_FOOD, GRASS_REGROWTH_TIME, P_REPRODUCE_SHEEP, P_REPRODUCE_WOLF
 import random as rnd
 
 class Individual():
@@ -28,6 +28,17 @@ class Individual():
         self.i,self.j = self.neighbours.return_ij(r, prev_i, prev_j)
         self.energy -= 1
         return (self.i,self.j)
+    
+    
+    def spawn(self, landscape, neighbour_list):
+        # neighbour_list: list of which neighbouring cells contain the same species
+        r = rnd.randint(0,7)
+        while (r in neighbour_list):
+            r = rnd.randint(0,7)
+            
+        #self.energy -= 1
+        return self.neighbours.return_ij(r, self.i, self.j)
+    
     
 class Grass(Individual):
     
@@ -73,6 +84,24 @@ class Sheep(Individual):
         else:
             eat_ij = None
         return eat_ij
+    
+    def reproduce(self):
+        if rnd.random()<=P_REPRODUCE_SHEEP:
+            return True
+        else:
+            return False
+        
+    def spawn(self,landscape):
+        # find neighbouring sheep
+        neighbour_list = []
+        for n in range(self.neighbours.N):
+            coords = self.neighbours.return_ij(n, self.i, self.j)
+            if (landscape.patches[coords[0]][coords[1]].sheep != None):
+                # there be a sheep!
+                neighbour_list.append(n)
+        
+        return Individual.spawn(self,landscape, neighbour_list)
+        
 
 class Wolf(Individual):
 
@@ -98,6 +127,24 @@ class Wolf(Individual):
         else:
             eat_ID = None
         return eat_ID
+
+    def reproduce(self):
+        if rnd.random()<=P_REPRODUCE_WOLF:
+            return True
+        else:
+            return False
+        
+    def spawn(self,landscape):
+        # find neighbouring wolves
+        neighbour_list = []
+        for n in range(self.neighbours.N):
+            coords = self.neighbours.return_ij(n, self.i, self.j)
+            if (landscape.patches[coords[0]][coords[1]].wolf != None):
+                # there be a sheep!
+                neighbour_list.append(n)
+        
+        return Individual.spawn(self,landscape, neighbour_list)
+
 
 class Neighbourhood():
     def __init__(self):
