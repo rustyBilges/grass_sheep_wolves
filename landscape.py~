@@ -7,7 +7,7 @@ interactive(True)
 
 import time
 
-from configure import ROWS, COLUMNS, INIT_NUMBER_SHEEP, INIT_NUMBER_WOLVES, INIT_NUMBER_GRASS
+from configure import ROWS, COLUMNS, INIT_NUMBER_SHEEP, INIT_NUMBER_WOLVES, INIT_NUMBER_GRASS, NUMBER_DESTROYED_PATCHES
 
 class Landscape():
 	
@@ -21,6 +21,7 @@ class Landscape():
         self.sheep = {}
         self.wolves = {}
         
+        self.destroyedPatches = 0
         self.patches = []
         self._create_patches()
         self._initialise_patches()
@@ -34,16 +35,18 @@ class Landscape():
         if animate==True:
             self.animate = True
             self.rest = rest
+            self.habitatDist = np.zeros((ROWS,COLUMNS))
             self.grassDist = np.zeros((ROWS,COLUMNS))
             self.sheepDist = np.zeros((ROWS,COLUMNS))
             self.wolfDist = np.zeros((ROWS,COLUMNS))    
     
-            self.fig, (self.ax1, self.ax2, self.ax3) = plt.subplots(1,3)
-            self.species_distributions(self.grassDist, self.sheepDist, self.wolfDist)
+            self.fig, (self.ax1, self.ax2, self.ax3, self.ax4) = plt.subplots(1,4)
+            self.species_distributions(self.habitatDist, self.grassDist, self.sheepDist, self.wolfDist)
     
-            self.p1 = self.ax1.imshow(self.grassDist, cmap='Greens', interpolation=None)    
-            self.p2 = self.ax2.imshow(self.sheepDist, cmap='Blues', interpolation=None)    
-            self.p3 = self.ax3.imshow(self.wolfDist, cmap='Reds', interpolation=None)    
+            self.p1 = self.ax1.imshow(self.habitatDist, cmap='Oranges', interpolation=None)    
+            self.p2 = self.ax2.imshow(self.grassDist, cmap='Greens', interpolation=None)    
+            self.p3 = self.ax3.imshow(self.sheepDist, cmap='Blues', interpolation=None)    
+            self.p4 = self.ax4.imshow(self.wolfDist, cmap='Reds', interpolation=None)    
             plt.draw()
             time.sleep(1)
 
@@ -57,6 +60,15 @@ class Landscape():
             self.patches.append(row)
                 
     def _initialise_patches(self):
+        # destroy patches
+        x_coord = rnd.randint(0,COLUMNS-1)
+        y_coord = rnd.randint(0,ROWS-1)
+        while self.destroyedPatches < NUMBER_DESTROYED_PATCHES:
+            if self.patches[x_coord][y_coord].habitat:
+                self.patches[x_coord][y_coord].habitat=False
+                self.destroyedPatches += 1
+            x_coord = rnd.randint(0,COLUMNS-1)
+            y_coord = rnd.randint(0,ROWS-1) 
         # create grass    
         for i in range(ROWS):
             for j in range(COLUMNS):
@@ -64,7 +76,7 @@ class Landscape():
         x_coord = rnd.randint(0,COLUMNS-1)
         y_coord = rnd.randint(0,ROWS-1)
         while self.grassCount < INIT_NUMBER_GRASS:
-            if self.patches[x_coord][y_coord].grass.state==False:
+            if self.patches[x_coord][y_coord].grass.state==False and self.patches[x_coord][y_coord].habitat:
                 self.patches[x_coord][y_coord].grass.state=True
                 self.grassCount += 1
             x_coord = rnd.randint(0,COLUMNS-1)
@@ -73,7 +85,7 @@ class Landscape():
         x_coord = rnd.randint(0,COLUMNS-1)
         y_coord = rnd.randint(0,ROWS-1)
         while self.sheepCount < INIT_NUMBER_SHEEP:
-            if self.patches[x_coord][y_coord].sheep==None:
+            if self.patches[x_coord][y_coord].sheep==None and self.patches[x_coord][y_coord].habitat:
                 self.createSheep(x_coord, y_coord)
             x_coord = rnd.randint(0,COLUMNS-1)
             y_coord = rnd.randint(0,ROWS-1)        
@@ -81,16 +93,18 @@ class Landscape():
         x_coord = rnd.randint(0,COLUMNS-1)
         y_coord = rnd.randint(0,ROWS-1)
         while self.wolfCount < INIT_NUMBER_WOLVES:
-            if self.patches[x_coord][y_coord].wolf==None:
+            if self.patches[x_coord][y_coord].wolf==None and self.patches[x_coord][y_coord].habitat:
                 self.createWolf(x_coord,y_coord)
             x_coord = rnd.randint(0,COLUMNS-1)
             y_coord = rnd.randint(0,ROWS-1)        
                     
 
-    def species_distributions(self, grassDist, sheepDist, wolfDist):
+    def species_distributions(self, habitatDist, grassDist, sheepDist, wolfDist):
         
         for i in range(ROWS):
             for j in range(COLUMNS):
+                if self.patches[i][j].habitat:
+                    self.habitatDist[i][j]=1
                 if self.patches[i][j].grass.state==True:
                     grassDist[i,j]=1
                 if self.patches[i][j].sheep!=None:
@@ -152,14 +166,15 @@ class Landscape():
 
         for i in range(ROWS):
             for j in range(COLUMNS):
-                if self.patches[i][j].grass.grow():
-                    self.grassCount += 1
+                if self.patches[i][j].habitat:
+                    if self.patches[i][j].grass.grow():
+                        self.grassCount += 1
         
         reproducingSheep = []
         reproducingWolves = []
                     
         for s in self.sheep:
-            if self.sheep[s].reproduce():
+            if self.sheep[s].reproduce(self):
                 reproducingSheep.append(s)
         for s in reproducingSheep:
             newEnergy = []
@@ -168,7 +183,7 @@ class Landscape():
             #print("new sheep spawned")
 
         for w in self.wolves:
-            if self.wolves[w].reproduce():
+            if self.wolves[w].reproduce(self):
                 reproducingWolves.append(w)
         for w in reproducingWolves:
             newEnergy = []
@@ -207,14 +222,16 @@ class Landscape():
         self.wolfIDTracker += 1
 
     def updatePlot(self):
+        self.habitatDist = np.zeros((ROWS,COLUMNS))
         self.grassDist = np.zeros((ROWS,COLUMNS))
         self.sheepDist = np.zeros((ROWS,COLUMNS))
         self.wolfDist = np.zeros((ROWS,COLUMNS))    
-        self.species_distributions(self.grassDist, self.sheepDist, self.wolfDist)
+        self.species_distributions(self.habitatDist, self.grassDist, self.sheepDist, self.wolfDist)
         
-        self.p1.set_data(self.grassDist)        
-        self.p2.set_data(self.sheepDist)
-        self.p3.set_data(self.wolfDist)        
+        self.p1.set_data(self.habitatDist)        
+        self.p2.set_data(self.grassDist)        
+        self.p3.set_data(self.sheepDist)
+        self.p4.set_data(self.wolfDist)        
         plt.draw()
         time.sleep(self.rest)
         
@@ -224,12 +241,12 @@ class Cell():
         self.grass = None
         self.sheep = None
         self.wolf  = None
-        self.habitat = 1   # 1 -> pristine habitat
+        self.habitat = True   # True -> pristine habitat
 
   
 if __name__ == '__main__':
 
-    T = 10
+    T = 1000
     rest = 0.0
 ##    timeSeries = np.zeros((3, T+1))    
 ##    

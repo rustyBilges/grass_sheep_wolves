@@ -20,13 +20,16 @@ class Individual():
      
     def move(self, landscape, neighbour_list):
         # neighbour_list: list of which neighbouring cells contain the same species
+        self.energy -= 1
+        if len(neighbour_list)==8:
+            # cannot move!
+            return (self.i,self.j)
         r = rnd.randint(0,7)
         while (r in neighbour_list):
             r = rnd.randint(0,7)
         prev_i = self.i
         prev_j = self.j    
         self.i,self.j = self.neighbours.return_ij(r, prev_i, prev_j)
-        self.energy -= 1
         return (self.i,self.j)
     
     
@@ -74,8 +77,8 @@ class Sheep(Individual):
         neighbour_list = []
         for n in range(self.neighbours.N):
             coords = self.neighbours.return_ij(n, self.i, self.j)
-            if (landscape.patches[coords[0]][coords[1]].sheep != None):
-                # there be a sheep!
+            if (landscape.patches[coords[0]][coords[1]].sheep != None or landscape.patches[coords[0]][coords[1]].habitat==False):
+                # there be a sheep! (or patch is uninhabitable)
                 neighbour_list.append(n)
         
         return Individual.move(self,landscape, neighbour_list)
@@ -89,9 +92,20 @@ class Sheep(Individual):
             eat_ij = None
         return eat_ij
     
-    def reproduce(self):
+    def reproduce(self, landscape):
         if rnd.random()<=P_REPRODUCE_SHEEP:
-            return True
+            # check if there is an available space to spawn:
+            neighbour_list = []
+            for n in range(self.neighbours.N):
+                coords = self.neighbours.return_ij(n, self.i, self.j)
+                if (landscape.patches[coords[0]][coords[1]].sheep != None or landscape.patches[coords[0]][coords[1]].habitat==False):
+                    # there be a sheep! (or a destroyed patch)
+                    neighbour_list.append(n)
+            if len(neighbour_list)==8:
+                #cannot reproduce
+                return False
+            else:
+                return True
         else:
             return False
         
@@ -100,7 +114,7 @@ class Sheep(Individual):
         neighbour_list = []
         for n in range(self.neighbours.N):
             coords = self.neighbours.return_ij(n, self.i, self.j)
-            if (landscape.patches[coords[0]][coords[1]].sheep != None):
+            if (landscape.patches[coords[0]][coords[1]].sheep != None or landscape.patches[coords[0]][coords[1]].habitat==False):
                 # there be a sheep!
                 neighbour_list.append(n)
         
@@ -124,7 +138,7 @@ class Wolf(Individual):
         neighbour_list = []
         for n in range(self.neighbours.N):
             coords = self.neighbours.return_ij(n, self.i, self.j)
-            if (landscape.patches[coords[0]][coords[1]].wolf != None):
+            if (landscape.patches[coords[0]][coords[1]].wolf != None or landscape.patches[coords[0]][coords[1]].habitat==False):
                 # there be a wolf!
                 neighbour_list.append(n)
         
@@ -139,9 +153,20 @@ class Wolf(Individual):
             eat_ID = None
         return eat_ID
 
-    def reproduce(self):
+    def reproduce(self, landscape):
         if rnd.random()<=P_REPRODUCE_WOLF:
-            return True
+            # check if there is an available space to spawn:
+            neighbour_list = []
+            for n in range(self.neighbours.N):
+                coords = self.neighbours.return_ij(n, self.i, self.j)
+                if (landscape.patches[coords[0]][coords[1]].wolf != None or landscape.patches[coords[0]][coords[1]].habitat==False):
+                    # there be a wolf! (or a destroyed patch)
+                    neighbour_list.append(n)
+            if len(neighbour_list)==8:
+                #cannot reproduce
+                return False
+            else:
+                return True
         else:
             return False
         
@@ -150,7 +175,7 @@ class Wolf(Individual):
         neighbour_list = []
         for n in range(self.neighbours.N):
             coords = self.neighbours.return_ij(n, self.i, self.j)
-            if (landscape.patches[coords[0]][coords[1]].wolf != None):
+            if (landscape.patches[coords[0]][coords[1]].wolf != None or landscape.patches[coords[0]][coords[1]].habitat==False):
                 # there be a wolf!
                 neighbour_list.append(n)
                 
