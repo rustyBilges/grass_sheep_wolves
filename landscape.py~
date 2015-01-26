@@ -42,8 +42,6 @@ class Landscape():
         x_coord = rnd.randint(0,COLUMNS-1)
         y_coord = rnd.randint(0,ROWS-1)
         while self.sheepCount < INIT_NUMBER_SHEEP:
-            print(x_coord)
-            print(y_coord)
             if self.patches[x_coord][y_coord].sheep==None:
                 self.sheep[self.sheepIDTracker] = Sheep(x_coord, y_coord, self.sheepIDTracker)
                 #self.sheep.append(Sheep(x_coord, y_coord))
@@ -56,8 +54,6 @@ class Landscape():
         x_coord = rnd.randint(0,COLUMNS-1)
         y_coord = rnd.randint(0,ROWS-1)
         while self.wolfCount < INIT_NUMBER_WOLVES:
-            print(x_coord)
-            print(y_coord)
             if self.patches[x_coord][y_coord].wolf==None:
                 self.wolves[self.wolfIDTracker] = Wolf(x_coord, y_coord, self.wolfIDTracker)                
                 #self.wolves.append(Wolf(x_coord, y_coord))
@@ -83,27 +79,53 @@ class Landscape():
 
 
     def update(self):
+        
+        starvedSheep = []
+        starvedWolves = []
+        
         for s in self.sheep:
-            prev_i,prev_j = (self.sheep[s].i,self.sheep[s].j)
-            new_ij = self.sheep[s].move(self)
-            self.patches[new_ij[0]][new_ij[1]].sheep = self.sheep[s]
-            self.patches[prev_i][prev_j].sheep = None
-
+            if self.sheep[s].alive():
+                prev_i,prev_j = (self.sheep[s].i,self.sheep[s].j)
+                new_ij = self.sheep[s].move(self)
+                self.patches[new_ij[0]][new_ij[1]].sheep = self.sheep[s]
+                self.patches[prev_i][prev_j].sheep = None
+            else:
+                starvedSheep.append(s)
+                print("Sheep starved")
+                
         for w in self.wolves:
-            prev_i,prev_j = (self.wolves[w].i,self.wolves[w].j)
-            new_ij = self.wolves[w].move(self)
-            self.patches[new_ij[0]][new_ij[1]].wolf = self.wolves[w]
-            self.patches[prev_i][prev_j].wolf = None
+            if self.wolves[w].alive():
+                prev_i,prev_j = (self.wolves[w].i,self.wolves[w].j)
+                new_ij = self.wolves[w].move(self)
+                self.patches[new_ij[0]][new_ij[1]].wolf = self.wolves[w]
+                self.patches[prev_i][prev_j].wolf = None
+            else:
+                starvedWolves.append(w)
+                print("wolf starved")
+
+        for s in starvedSheep:
+            self.deleteSheep(s)
+        for w in starvedWolves:
+            self.deleteWolf(w)
 
         for w in self.wolves:
             eat_ID = self.wolves[w].eat(self)
             if (eat_ID!=None):
-                eatenSheep = self.sheep[eat_ID]
-                self.patches[eatenSheep.i][eatenSheep.j].sheep = None
-                del self.sheep[eat_ID]
-                self.sheepCount -= 1
+                self.deleteSheep(eat_ID)
                 print("Sheep eaten")
-                
+    
+    def deleteSheep(self, sheepID):
+        deadSheep = self.sheep[sheepID]
+        self.patches[deadSheep.i][deadSheep.j].sheep = None
+        del self.sheep[sheepID]
+        self.sheepCount -= 1  
+
+    def deleteWolf(self, wolfID):
+        deadWolf = self.wolves[wolfID]
+        self.patches[deadWolf.i][deadWolf.j].sheep = None
+        del self.wolves[wolfID]
+        self.wolfCount -= 1  
+              
 # landscape to consist of an array of cells
 class Cell():
     
