@@ -1,4 +1,4 @@
-from species import Individual, Grass, Sheep
+from species import * #Individual, Grass, Sheep
 import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -42,7 +42,6 @@ class Landscape():
             print(x_coord)
             print(y_coord)
             if self.patches[x_coord][y_coord].sheep==None:
-                #self.sheep.append(Individual("sheep", x_coord, y_coord))
                 self.sheep.append(Sheep(x_coord, y_coord))
                 self.patches[x_coord][y_coord].sheep = self.sheep[self.sheepCount]
                 self.sheepCount += 1
@@ -55,7 +54,7 @@ class Landscape():
             print(x_coord)
             print(y_coord)
             if self.patches[x_coord][y_coord].wolf==None:
-                self.wolves.append(Individual("wolf", x_coord, y_coord))
+                self.wolves.append(Wolf(x_coord, y_coord))
                 self.patches[x_coord][y_coord].wolf = self.wolves[self.wolfCount]
                 self.wolfCount += 1
             x_coord = rnd.randint(0,COLUMNS-1)
@@ -82,6 +81,12 @@ class Landscape():
             new_ij = self.sheep[s].move(self)
             self.patches[new_ij[0]][new_ij[1]].sheep = self.sheep[s]
             self.patches[prev_i][prev_j].sheep = None
+
+        for w in range(self.wolfCount):
+            prev_i,prev_j = (self.wolves[w].i,self.wolves[w].j)
+            new_ij = self.wolves[w].move(self)
+            self.patches[new_ij[0]][new_ij[1]].wolf = self.wolves[w]
+            self.patches[prev_i][prev_j].wolf = None
 
 # landscape to consist of an array of cells
 class Cell():
@@ -116,13 +121,13 @@ if __name__ == '__main__':
     fig, (ax1, ax2, ax3) = plt.subplots(1,3)
     L.species_distributions(grassDist, sheepDist, wolfDist)
     #plt.subplot(1,3,1)
-    ax1.imshow(grassDist, cmap='Greens', interpolation='none')    
+    p1 = ax1.imshow(grassDist, cmap='Greens', interpolation='none')    
     #p1 = plt.pcolor(grassDist, cmap='Greens')
     #plt.subplot(1,3,2)
     p2 = ax2.imshow(sheepDist, cmap='Blues', interpolation='none')    
     #p2 = plt.pcolor(sheepDist, cmap='Blues')
     #plt.subplot(1,3,3)
-    ax3.imshow(wolfDist, cmap='Reds', interpolation=None)    
+    p3 = ax3.imshow(wolfDist, cmap='Reds', interpolation=None)    
     #p3 = plt.pcolor(wolfDist, cmap='Reds')
     plt.draw()
     #plt.show()
@@ -137,6 +142,7 @@ if __name__ == '__main__':
         wolfDist = np.zeros((ROWS,COLUMNS))    
         L.species_distributions(grassDist, sheepDist, wolfDist)
         
-        p2.set_data(sheepDist)        
+        p2.set_data(sheepDist)
+        p3.set_data(wolfDist)        
         plt.draw()
         time.sleep(rest)

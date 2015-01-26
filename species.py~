@@ -43,7 +43,24 @@ class Sheep(Individual):
                 neighbour_list.append(n)
         
         return Individual.move(self,landscape, neighbour_list)
-    
+
+class Wolf(Individual):
+
+    def __init__(self, i, j):
+        Individual.__init__(self, "wolf", i, j)
+        
+    def move(self, landscape):
+        # find neighbouring sheep
+        neighbour_list = []
+        for n in range(self.neighbours.N):
+            coords = self.neighbours.return_ij(n, self.i, self.j)
+            if (landscape.patches[coords[0]][coords[1]].wolf != None):
+                # there be a sheep!
+                neighbour_list.append(n)
+        
+        return Individual.move(self,landscape, neighbour_list)
+
+
 class Neighbourhood():
     def __init__(self):
         self.name = "8_nearest_neighbours"
