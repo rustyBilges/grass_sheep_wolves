@@ -1,3 +1,9 @@
+# Notes..
+# Think about optimisation..esp no need to update habitat distirbution if this is static!
+# Also could reduce redundancy in neighbourhood search?
+# Also think about whta to do in case when individual is trapped
+# Also, if habitat is destroyed this does not change so could reduce search time/decisions?
+
 from species import * #Individual, Grass, Sheep
 import random as rnd
 import numpy as np
@@ -42,6 +48,12 @@ class Landscape():
     
             self.fig, (self.ax1, self.ax2, self.ax3, self.ax4) = plt.subplots(1,4)
             self.species_distributions(self.habitatDist, self.grassDist, self.sheepDist, self.wolfDist)
+
+            for i in range(ROWS):
+              for j in range(COLUMNS):
+                if self.patches[i][j].habitat:
+                    self.habitatDist[i][j]=1
+
     
             self.p1 = self.ax1.imshow(self.habitatDist, cmap='Oranges', interpolation=None)    
             self.p2 = self.ax2.imshow(self.grassDist, cmap='Greens', interpolation=None)    
@@ -49,6 +61,7 @@ class Landscape():
             self.p4 = self.ax4.imshow(self.wolfDist, cmap='Reds', interpolation=None)    
             plt.draw()
             time.sleep(1)
+            
 
 
     def _create_patches(self):
@@ -103,8 +116,8 @@ class Landscape():
         
         for i in range(ROWS):
             for j in range(COLUMNS):
-                if self.patches[i][j].habitat:
-                    self.habitatDist[i][j]=1
+                #if self.patches[i][j].habitat:
+                #    self.habitatDist[i][j]=1
                 if self.patches[i][j].grass.state==True:
                     grassDist[i,j]=1
                 if self.patches[i][j].sheep!=None:
@@ -131,8 +144,9 @@ class Landscape():
             if self.sheep[s].alive():
                 prev_i,prev_j = (self.sheep[s].i,self.sheep[s].j)
                 new_ij = self.sheep[s].move(self)
-                self.patches[new_ij[0]][new_ij[1]].sheep = self.sheep[s]
-                self.patches[prev_i][prev_j].sheep = None
+                if new_ij != (prev_i,prev_j):
+                	self.patches[new_ij[0]][new_ij[1]].sheep = self.sheep[s]
+                	self.patches[prev_i][prev_j].sheep = None
             else:
                 starvedSheep.append(s)
                 #print("Sheep starved")
@@ -141,8 +155,9 @@ class Landscape():
             if self.wolves[w].alive():
                 prev_i,prev_j = (self.wolves[w].i,self.wolves[w].j)
                 new_ij = self.wolves[w].move(self)
-                self.patches[new_ij[0]][new_ij[1]].wolf = self.wolves[w]
-                self.patches[prev_i][prev_j].wolf = None
+                if new_ij != (prev_i,prev_j):
+	                self.patches[new_ij[0]][new_ij[1]].wolf = self.wolves[w]
+        	        self.patches[prev_i][prev_j].wolf = None
             else:
                 starvedWolves.append(w)
                 #print("wolf starved")
@@ -222,7 +237,7 @@ class Landscape():
         self.wolfIDTracker += 1
 
     def updatePlot(self):
-        self.habitatDist = np.zeros((ROWS,COLUMNS))
+        #self.habitatDist = np.zeros((ROWS,COLUMNS))
         self.grassDist = np.zeros((ROWS,COLUMNS))
         self.sheepDist = np.zeros((ROWS,COLUMNS))
         self.wolfDist = np.zeros((ROWS,COLUMNS))    

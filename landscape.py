@@ -48,6 +48,12 @@ class Landscape():
     
             self.fig, (self.ax1, self.ax2, self.ax3, self.ax4) = plt.subplots(1,4)
             self.species_distributions(self.habitatDist, self.grassDist, self.sheepDist, self.wolfDist)
+
+            for i in range(ROWS):
+              for j in range(COLUMNS):
+                if self.patches[i][j].habitat:
+                    self.habitatDist[i][j]=1
+
     
             self.p1 = self.ax1.imshow(self.habitatDist, cmap='Oranges', interpolation=None)    
             self.p2 = self.ax2.imshow(self.grassDist, cmap='Greens', interpolation=None)    
@@ -55,6 +61,7 @@ class Landscape():
             self.p4 = self.ax4.imshow(self.wolfDist, cmap='Reds', interpolation=None)    
             plt.draw()
             time.sleep(1)
+            
 
 
     def _create_patches(self):
@@ -109,8 +116,8 @@ class Landscape():
         
         for i in range(ROWS):
             for j in range(COLUMNS):
-                if self.patches[i][j].habitat:
-                    self.habitatDist[i][j]=1
+                #if self.patches[i][j].habitat:
+                #    self.habitatDist[i][j]=1
                 if self.patches[i][j].grass.state==True:
                     grassDist[i,j]=1
                 if self.patches[i][j].sheep!=None:
@@ -137,8 +144,9 @@ class Landscape():
             if self.sheep[s].alive():
                 prev_i,prev_j = (self.sheep[s].i,self.sheep[s].j)
                 new_ij = self.sheep[s].move(self)
-                self.patches[new_ij[0]][new_ij[1]].sheep = self.sheep[s]
-                self.patches[prev_i][prev_j].sheep = None
+                if new_ij != (prev_i,prev_j):
+                	self.patches[new_ij[0]][new_ij[1]].sheep = self.sheep[s]
+                	self.patches[prev_i][prev_j].sheep = None
             else:
                 starvedSheep.append(s)
                 #print("Sheep starved")
@@ -147,8 +155,9 @@ class Landscape():
             if self.wolves[w].alive():
                 prev_i,prev_j = (self.wolves[w].i,self.wolves[w].j)
                 new_ij = self.wolves[w].move(self)
-                self.patches[new_ij[0]][new_ij[1]].wolf = self.wolves[w]
-                self.patches[prev_i][prev_j].wolf = None
+                if new_ij != (prev_i,prev_j):
+	                self.patches[new_ij[0]][new_ij[1]].wolf = self.wolves[w]
+        	        self.patches[prev_i][prev_j].wolf = None
             else:
                 starvedWolves.append(w)
                 #print("wolf starved")
@@ -184,8 +193,9 @@ class Landscape():
                 reproducingSheep.append(s)
         for s in reproducingSheep:
             newEnergy = []
-            spawn_ij = self.sheep[s].spawn(self, newEnergy)
-            self.createSheep(spawn_ij[0], spawn_ij[1], newEnergy[0])
+            if self.sheep[s].reproduce(self):
+                spawn_ij = self.sheep[s].spawn(self, newEnergy)
+                self.createSheep(spawn_ij[0], spawn_ij[1], newEnergy[0])
             #print("new sheep spawned")
 
         for w in self.wolves:
@@ -193,8 +203,9 @@ class Landscape():
                 reproducingWolves.append(w)
         for w in reproducingWolves:
             newEnergy = []
-            spawn_ij = self.wolves[w].spawn(self, newEnergy)
-            self.createWolf(spawn_ij[0], spawn_ij[1], newEnergy[0])
+            if self.wolves[w].reproduce(self):
+                spawn_ij = self.wolves[w].spawn(self, newEnergy)
+                self.createWolf(spawn_ij[0], spawn_ij[1], newEnergy[0])
             #print("new wolf spawned")
             
         if self.animate:
@@ -228,7 +239,7 @@ class Landscape():
         self.wolfIDTracker += 1
 
     def updatePlot(self):
-        self.habitatDist = np.zeros((ROWS,COLUMNS))
+        #self.habitatDist = np.zeros((ROWS,COLUMNS))
         self.grassDist = np.zeros((ROWS,COLUMNS))
         self.sheepDist = np.zeros((ROWS,COLUMNS))
         self.wolfDist = np.zeros((ROWS,COLUMNS))    

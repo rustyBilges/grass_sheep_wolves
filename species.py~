@@ -23,7 +23,9 @@ class Individual():
         self.energy -= 1
         if len(neighbour_list)==8:
             # cannot move!
+            print("boxed in!")            
             return (self.i,self.j)
+            
         r = rnd.randint(0,7)
         while (r in neighbour_list):
             r = rnd.randint(0,7)
@@ -153,7 +155,7 @@ class Wolf(Individual):
             eat_ID = None
         return eat_ID
 
-    def reproduce(self):
+    def reproduce(self, landscape):
         if rnd.random()<=P_REPRODUCE_WOLF:
             # check if there is an available space to spawn:
             neighbour_list = []
