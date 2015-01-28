@@ -17,7 +17,7 @@ from configure import ROWS, COLUMNS, INIT_NUMBER_SHEEP, INIT_NUMBER_WOLVES, INIT
 
 class Landscape():
 	
-    def __init__(self, timeSeries=False, animate=False, T=0, rest=0):
+    def __init__(self, timeSeries=False, animate=False, T=0, rest=0, saveSpeciesDists = False, saveEvery=None, runID = 0):
         
         self.sheepIDTracker = 0
         self.wolfIDTracker = 0   # such that every individual born can be given a unique ID
@@ -62,6 +62,23 @@ class Landscape():
             plt.draw()
             time.sleep(1)
             
+        if saveSpeciesDists==True:
+            self.saveSpeciesDists = True
+            self.saveEvery = saveEvery
+            self.runID = runID
+            
+            self.habitatDist = np.zeros((ROWS,COLUMNS))
+            self.grassDist = np.zeros((ROWS,COLUMNS))
+            self.sheepDist = np.zeros((ROWS,COLUMNS))
+            self.wolfDist = np.zeros((ROWS,COLUMNS))    
+    
+            self.species_distributions(self.habitatDist, self.grassDist, self.sheepDist, self.wolfDist)
+
+            for i in range(ROWS):
+              for j in range(COLUMNS):
+                if self.patches[i][j].habitat:
+                    self.habitatDist[i][j]=1
+            np.savetxt('habitatDist_run%d.csv' %self.runID, self.habitatDist, delimiter=",")
 
 
     def _create_patches(self):
@@ -212,6 +229,17 @@ class Landscape():
             self.updatePlot()
         if self.timeSeries!=None:
             self.timeSeries_append(ti)
+            
+        if self.saveSpeciesDists==True and np.mod(ti, self.saveEvery)==0:
+    
+            self.grassDist = np.zeros((ROWS,COLUMNS))
+            self.sheepDist = np.zeros((ROWS,COLUMNS))
+            self.wolfDist = np.zeros((ROWS,COLUMNS))    
+    
+            self.species_distributions(self.habitatDist, self.grassDist, self.sheepDist, self.wolfDist)
+            np.savetxt('grassDist_run%d_iteration%d.csv' % (self.runID, ti), self.grassDist, delimiter=",")
+            np.savetxt('sheepDist_run%d_iteration%d.csv' % (self.runID, ti), self.sheepDist, delimiter=",")
+            np.savetxt('wolfDist_run%d_iteration%d.csv' % (self.runID, ti), self.wolfDist, delimiter=",")
     
     
     def deleteSheep(self, sheepID):
@@ -263,16 +291,19 @@ class Cell():
   
 if __name__ == '__main__':
 
-    T = 1000
+    T = 10
     rest = 0.0
 
-    L = Landscape(True, False, T, rest)
+    L = Landscape(True, False, T, rest, False)
     print(L)
 
     for t in range(T):
         L.update(t)
 
     print(L)
+    
+    # save series to file
+    np.savetxt('test.csv', L.timeSeries, delimiter=",")
     
     fig2 = plt.figure()
     ax1fig2 = fig2.add_subplot(111)
