@@ -105,6 +105,7 @@ class Sheep(Individual):
                     neighbour_list.append(n)
             if len(neighbour_list)==8:
                 #cannot reproduce
+                print("cannot spawn")
                 return False
             else:
                 return True

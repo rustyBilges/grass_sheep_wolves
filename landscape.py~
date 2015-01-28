@@ -4,7 +4,7 @@
 # Also think about whta to do in case when individual is trapped
 # Also, if habitat is destroyed this does not change so could reduce search time/decisions?
 
-from species import * #Individual, Grass, Sheep
+from species import * 
 import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -37,9 +37,9 @@ class Landscape():
             self.timeSeries = np.zeros((3, T+1))
         else:         
             self.timeSeries=None
-        
-        if animate==True:
-            self.animate = True
+            
+        self.animate = animate
+        if animate==True:            
             self.rest = rest
             self.habitatDist = np.zeros((ROWS,COLUMNS))
             self.grassDist = np.zeros((ROWS,COLUMNS))
@@ -156,8 +156,8 @@ class Landscape():
                 prev_i,prev_j = (self.wolves[w].i,self.wolves[w].j)
                 new_ij = self.wolves[w].move(self)
                 if new_ij != (prev_i,prev_j):
-	                self.patches[new_ij[0]][new_ij[1]].wolf = self.wolves[w]
-        	        self.patches[prev_i][prev_j].wolf = None
+                    self.patches[new_ij[0]][new_ij[1]].wolf = self.wolves[w]
+                    self.patches[prev_i][prev_j].wolf = None
             else:
                 starvedWolves.append(w)
                 #print("wolf starved")
@@ -193,8 +193,9 @@ class Landscape():
                 reproducingSheep.append(s)
         for s in reproducingSheep:
             newEnergy = []
-            spawn_ij = self.sheep[s].spawn(self, newEnergy)
-            self.createSheep(spawn_ij[0], spawn_ij[1], newEnergy[0])
+            if self.sheep[s].reproduce(self):
+                spawn_ij = self.sheep[s].spawn(self, newEnergy)
+                self.createSheep(spawn_ij[0], spawn_ij[1], newEnergy[0])
             #print("new sheep spawned")
 
         for w in self.wolves:
@@ -202,8 +203,9 @@ class Landscape():
                 reproducingWolves.append(w)
         for w in reproducingWolves:
             newEnergy = []
-            spawn_ij = self.wolves[w].spawn(self, newEnergy)
-            self.createWolf(spawn_ij[0], spawn_ij[1], newEnergy[0])
+            if self.wolves[w].reproduce(self):
+                spawn_ij = self.wolves[w].spawn(self, newEnergy)
+                self.createWolf(spawn_ij[0], spawn_ij[1], newEnergy[0])
             #print("new wolf spawned")
             
         if self.animate:
@@ -269,7 +271,7 @@ if __name__ == '__main__':
 ##    sheepDist = np.zeros((ROWS,COLUMNS))
 ##    wolfDist = np.zeros((ROWS,COLUMNS))    
 ##    
-    L = Landscape(True, True, T, rest)
+    L = Landscape(True, False, T, rest)
     print(L)
 ##    
 ##    fig, (ax1, ax2, ax3) = plt.subplots(1,3)

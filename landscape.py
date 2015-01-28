@@ -4,7 +4,7 @@
 # Also think about whta to do in case when individual is trapped
 # Also, if habitat is destroyed this does not change so could reduce search time/decisions?
 
-from species import * #Individual, Grass, Sheep
+from species import * 
 import random as rnd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -37,9 +37,9 @@ class Landscape():
             self.timeSeries = np.zeros((3, T+1))
         else:         
             self.timeSeries=None
-        
-        if animate==True:
-            self.animate = True
+            
+        self.animate = animate
+        if animate==True:            
             self.rest = rest
             self.habitatDist = np.zeros((ROWS,COLUMNS))
             self.grassDist = np.zeros((ROWS,COLUMNS))
@@ -156,8 +156,8 @@ class Landscape():
                 prev_i,prev_j = (self.wolves[w].i,self.wolves[w].j)
                 new_ij = self.wolves[w].move(self)
                 if new_ij != (prev_i,prev_j):
-	                self.patches[new_ij[0]][new_ij[1]].wolf = self.wolves[w]
-        	        self.patches[prev_i][prev_j].wolf = None
+                    self.patches[new_ij[0]][new_ij[1]].wolf = self.wolves[w]
+                    self.patches[prev_i][prev_j].wolf = None
             else:
                 starvedWolves.append(w)
                 #print("wolf starved")
@@ -265,37 +265,13 @@ if __name__ == '__main__':
 
     T = 1000
     rest = 0.0
-##    timeSeries = np.zeros((3, T+1))    
-##    
-##    grassDist = np.zeros((ROWS,COLUMNS))
-##    sheepDist = np.zeros((ROWS,COLUMNS))
-##    wolfDist = np.zeros((ROWS,COLUMNS))    
-##    
-    L = Landscape(True, True, T, rest)
+
+    L = Landscape(True, False, T, rest)
     print(L)
-##    
-##    fig, (ax1, ax2, ax3) = plt.subplots(1,3)
-##    L.species_distributions(grassDist, sheepDist, wolfDist, timeSeries, 0)
-##    
-##    p1 = ax1.imshow(grassDist, cmap='Greens', interpolation=None)    
-##    p2 = ax2.imshow(sheepDist, cmap='Blues', interpolation=None)    
-##    p3 = ax3.imshow(wolfDist, cmap='Reds', interpolation=None)    
-##    plt.draw()
-##    time.sleep(1)
 
     for t in range(T):
         L.update(t)
-##        grassDist = np.zeros((ROWS,COLUMNS))
-##        sheepDist = np.zeros((ROWS,COLUMNS))
-##        wolfDist = np.zeros((ROWS,COLUMNS))    
-##        L.species_distributions(grassDist, sheepDist, wolfDist, timeSeries, t+1)
-##        
-##        p1.set_data(grassDist)        
-##        p2.set_data(sheepDist)
-##        p3.set_data(wolfDist)        
-##        plt.draw()
-##        time.sleep(rest)
-##    
+
     print(L)
     
     fig2 = plt.figure()

@@ -23,7 +23,7 @@ class Individual():
         self.energy -= 1
         if len(neighbour_list)==8:
             # cannot move!
-            print("boxed in!")            
+            #print("boxed in!")            
             return (self.i,self.j)
             
         r = rnd.randint(0,7)
@@ -105,7 +105,7 @@ class Sheep(Individual):
                     neighbour_list.append(n)
             if len(neighbour_list)==8:
                 #cannot reproduce
-                print("cannot spawn")
+                #print("cannot spawn")
                 return False
             else:
                 return True
