@@ -13,11 +13,11 @@ interactive(True)
 
 import time
 
-from configure import ROWS, COLUMNS, INIT_NUMBER_SHEEP, INIT_NUMBER_WOLVES, INIT_NUMBER_GRASS, NUMBER_DESTROYED_PATCHES
+from configure import ROWS, COLUMNS, INIT_NUMBER_SHEEP, INIT_NUMBER_WOLVES, INIT_NUMBER_GRASS#, NUMBER_DESTROYED_PATCHES
 
 class Landscape():
 	
-    def __init__(self, timeSeries=False, animate=False, T=0, rest=0, saveSpeciesDists = False, saveEvery=None, runID = 0):
+    def __init__(self, timeSeries=False, animate=False, T=0, rest=0, saveSpeciesDists = False, saveEvery=None, runID = 0, numberDestroyedPatches = 0):
         
         self.sheepIDTracker = 0
         self.wolfIDTracker = 0   # such that every individual born can be given a unique ID
@@ -27,11 +27,14 @@ class Landscape():
         self.sheep = {}
         self.wolves = {}
         
+        self.numberDestroyedPatches = numberDestroyedPatches
         self.destroyedPatches = 0
         self.patches = []
         self._create_patches()
         self._initialise_patches()
         self.patches[0][0].grass.state = False  #JUST FOR TEMPORARY
+        
+        self.T = T
         
         if timeSeries==True:
             self.timeSeries = np.zeros((3, T+1))
@@ -93,7 +96,7 @@ class Landscape():
         # destroy patches
         x_coord = rnd.randint(0,COLUMNS-1)
         y_coord = rnd.randint(0,ROWS-1)
-        while self.destroyedPatches < NUMBER_DESTROYED_PATCHES:
+        while self.destroyedPatches < self.numberDestroyedPatches: #NUMBER_DESTROYED_PATCHES:
             if self.patches[x_coord][y_coord].habitat:
                 self.patches[x_coord][y_coord].habitat=False
                 self.destroyedPatches += 1
@@ -279,6 +282,29 @@ class Landscape():
         self.p4.set_data(self.wolfDist)        
         plt.draw()
         time.sleep(self.rest)
+
+    def saveParameters(self):
+        f = open('parameters.txt', 'w')
+        
+        f.write('runID = %d\n' %self.runID)        
+        f.write('TIMESTEPS = %d\n' %self.T)
+        f.write('DESTROYED_PATCHES = %d\n' %self.numberDestroyedPatches)
+        f.write('SAVE_DIST_EVERY = %d\n' %self.saveEvery)
+        
+        f.write('\n***********************************************\n')        
+        f.write('from configuuration file...\n')
+        f.write('ROWS = %d\n' %ROWS)
+        f.write('COLUMNS = %d\n' %COLUMNS)    
+        f.write('INIT_NUMBER_GRASS = %d\n' %INIT_NUMBER_GRASS)
+        f.write('INIT_NUMBER_SHEEP = %d\n' %INIT_NUMBER_SHEEP)        
+        f.write('INIT_NUMBER_WOLVES = %d\n' %INIT_NUMBER_WOLVES)
+        f.write('P_REPRODUCE_SHEEP = %d\n' %P_REPRODUCE_SHEEP)
+        f.write('P_REPRODUCE_WOLF = %d\n' %P_REPRODUCE_WOLF)
+        f.write('SHEEP_GAIN_FROM_FOOD = %d\n' %SHEEP_GAIN_FROM_FOOD)
+        f.write('WOLF_GAIN_FROM_FOOD = %d\n' %WOLF_GAIN_FROM_FOOD)
+        f.write('GRASS_REGROWTH_TIME = %d\n' %GRASS_REGROWTH_TIME)
+        f.write('\n***********************************************\n')        
+        f.close()
         
 class Cell():
     

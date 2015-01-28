@@ -37,7 +37,7 @@ if __name__== '__main__':
             os.chdir(subDirectoryName)
             
             
-            L = Landscape(True, False, T, rest, True, 5, r)          # false for now animation
+            L = Landscape(True, False, T, rest, True, 5, r, hl)          # false for now animation
             print('This is run%d at HL = %d') % (r, hl)
             print(L)
             
