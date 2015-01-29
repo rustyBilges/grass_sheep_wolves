@@ -26,10 +26,8 @@ if __name__== '__main__':
         directoryName = './%d_destroyedPatches' %hl
         os.mkdir(directoryName)
         os.chdir(directoryName)
-        # save parameters used in the following simulations:
         
         # run nRep simulations.. 
-
         for r in range(nRep):
             # save species ditributions in here:
             subDirectoryName = './run%d' %r
@@ -40,6 +38,7 @@ if __name__== '__main__':
             L = Landscape(True, False, T, rest, True, 5, r, hl)          # false for now animation
             print('This is run%d at HL = %d') % (r, hl)
             print(L)
+            L.saveParameters()
             
             for t in range(T):
                 L.update(t)

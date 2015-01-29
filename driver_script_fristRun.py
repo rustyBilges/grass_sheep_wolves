@@ -45,4 +45,4 @@ if __name__== '__main__':
             # then change up at EoS to save timesereis in parent directory
             os.chdir('..')
             np.savetxt('run%d_timeseries.csv' %r, L.timeSeries, delimiter=",")
-            os.chdir('..')
+        os.chdir('..')

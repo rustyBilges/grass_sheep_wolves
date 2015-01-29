@@ -1,0 +1,19 @@
+runID = 0
+TIMESTEPS = 1000
+DESTROYED_PATCHES = 16000
+SAVE_DIST_EVERY = 100
+
+***********************************************
+from configuuration file...
+ROWS = 200
+COLUMNS = 200
+INIT_NUMBER_GRASS = 20000
+INIT_NUMBER_SHEEP = 1600
+INIT_NUMBER_WOLVES = 80
+P_REPRODUCE_SHEEP = 0
+P_REPRODUCE_WOLF = 0
+SHEEP_GAIN_FROM_FOOD = 4
+WOLF_GAIN_FROM_FOOD = 40
+GRASS_REGROWTH_TIME = 30
+
+***********************************************

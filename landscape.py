@@ -65,8 +65,9 @@ class Landscape():
             plt.draw()
             time.sleep(1)
             
+        self.saveSpeciesDists = saveSpeciesDists
         if saveSpeciesDists==True:
-            self.saveSpeciesDists = True
+            
             self.saveEvery = saveEvery
             self.runID = runID
             
@@ -329,7 +330,7 @@ if __name__ == '__main__':
     print(L)
     
     # save series to file
-    np.savetxt('test.csv', L.timeSeries, delimiter=",")
+    #np.savetxt('test.csv', L.timeSeries, delimiter=",")
     
     fig2 = plt.figure()
     ax1fig2 = fig2.add_subplot(111)

@@ -304,6 +304,7 @@ class Landscape():
         f.write('WOLF_GAIN_FROM_FOOD = %d\n' %WOLF_GAIN_FROM_FOOD)
         f.write('GRASS_REGROWTH_TIME = %d\n' %GRASS_REGROWTH_TIME)
         f.write('\n***********************************************\n')        
+        f.close()
         
 class Cell():
     
@@ -328,7 +329,7 @@ if __name__ == '__main__':
     print(L)
     
     # save series to file
-    np.savetxt('test.csv', L.timeSeries, delimiter=",")
+    #np.savetxt('test.csv', L.timeSeries, delimiter=",")
     
     fig2 = plt.figure()
     ax1fig2 = fig2.add_subplot(111)
